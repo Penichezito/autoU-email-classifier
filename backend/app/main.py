@@ -1,11 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.resposes import JSONResponse
+from fastapi.responses import JSONResponse
 import uvicorn
+import os
 from dotenv import load_dotenv
 
 from app.controllers.email_controller import EmailController
-from app.database import get_db
+from app.database.connection import get_db
 from sqlalchemy.orm import Session
 
 load_dotenv()

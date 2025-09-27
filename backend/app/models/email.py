@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, Datetime
-from sqlachemy.ext.declarative import declarative_base
-from sqlachemy.sql import func
+from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -12,7 +12,7 @@ class EmailClassification(Base):
     classification = Column(String, nullable=False) # "Produtivo" ou "Improdutivo"
     suggested_respoonse = Column(Text, nullable=False)
     confidence_score = Column(String(10), nullable=True)
-    processed_at = Column(Datetime(timezone=True), server_default=func.now())
+    processed_at = Column(DateTime(timezone=True), server_default=func.now())
     file_name = Column(String(255), nullable=True)
     is_from_file = Column(Boolean, default=False)
 
