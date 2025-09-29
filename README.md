@@ -92,9 +92,8 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ``
 
-### AcessarDocumentação API com Swagger ou Redocs
+### AcessarDocumentação API com Swagger 
 http://localhost:8000/docs 
-http://localhost:8000/redocs
 
 ### Comando para rodar a aplicação com Docker Compose (recomendado)
 ``
