@@ -68,6 +68,20 @@ DATABASE_URL=postgresql://autou_user:autou_pass@localhost:5432/autou_emails
 
 - AWS_ACCOUNT_ID=123456789012
 - AWS_REGION=us-east-1
+  
+### Criar ambiente virtual (altamente recomendado)
+``
+python -m venv venv
+``
+### Ativar Virtual Env
+- Windows
+``
+venv/Scripts/activate
+``
+- Linux
+``
+source venv/bin/activate
+``
 
 ### Comando para instalar as dependecias
 ``
