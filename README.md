@@ -1,4 +1,4 @@
-# AutoU Email Classifier
+# AutoU Email Classifier by Tiago Peniche
 
 Sistema inteligente de classificação automática de emails usando IA.
 
@@ -13,43 +13,6 @@ Sistema inteligente de classificação automática de emails usando IA.
 - **Banco:** PostgreSQL
 - **IA:** OpenAI GPT-5 + regras de fallback
 - **Deploy:** Docker + AWS ECS/GCP Cloud Run
-
-## 🏃‍♂️ Execução Local
-
-\`\`\`bash
-# Clonar repositório
-git clone <your-repo-url>
-cd email-classifier
-
-# Configurar as variáveis de ambiente 
-
-# .env.example
-# OpenAI API Key (opcional - usa regras se não fornecida)
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Database
-DATABASE_URL=postgresql://autou_user:autou_pass@localhost:5432/autou_emails
-
-# AWS (para deploy)
-AWS_ACCOUNT_ID=123456789012
-AWS_REGION=us-east-1
-
-# BackEnd Com Localhost
-pip install -r requirements.txt
-uvicorn main:app --reload
-
-# Acessar Backend com Swagger
-http://localhost:8000/docs 
-
-# Com Docker Compose (recomendado)
-docker-compose up -d
-
-# FrontEnd
-cd frontend
-npm install
-npm run dev
-# Acessar em http://localhost:3000
-\`\`\`
 
 ## 📊 Funcionalidades
 
@@ -67,6 +30,7 @@ npm run dev
 - ✅Monólito modular com separação clara de responsabilidades
 - ✅TypeScript + Next.js 14 com Tailwind CSS
 - ✅FastAPI + SQLAlchemy com PostgreSQL
+- ✅Docker para orquestração do app
 
 ## Funcionalidades Avançadas
 
@@ -82,6 +46,68 @@ npm run dev
 - ✅Scripts de deploy para AWS/GCP
 - ✅Configuração de ambiente flexível
 - ✅Pronto para produção
+
+## 🏃‍♂️ Intruções para Execução da Aplicação
+
+\`\`\`bash
+## Clonar repositório
+git clone <your-repo-url>
+cd email-classifier
+
+## Configurar as variáveis de ambiente 
+
+### .env.example
+### OpenAI API Key (opcional - usa regras se não fornecida)
+``
+OPENAI_API_KEY=your_openai_api_key_here
+``
+### Database
+DATABASE_URL=postgresql://autou_user:autou_pass@localhost:5432/autou_emails
+
+### AWS (para deploy)
+
+- AWS_ACCOUNT_ID=123456789012
+- AWS_REGION=us-east-1
+
+### Comando para instalar as dependecias
+``
+pip install -r requirements.txt
+``
+
+### Comando para rodar a aplicação FastAPI localmente
+uvicorn main:app --reload
+``
+
+### AcessarDocumentação API com Swagger ou Redocs
+http://localhost:8000/docs 
+http://localhost:8000/redocs
+
+### Comando para rodar a aplicação com Docker Compose (recomendado)
+``
+docker-compose up --d
+``
+### FrontEnd
+``
+cd frontend
+``
+
+-----------
+### Instalar dependencias do projeto
+``
+npm install
+``
+
+-----------
+
+### Comando para Rodar projeto
+``
+npm run dev
+``
+
+-----------
+- Acessar em http://localhost:3000
+\`\`\`
+
 
 ## 🎥 Vídeo Demonstrativo
 
