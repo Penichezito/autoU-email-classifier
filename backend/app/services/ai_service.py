@@ -1,7 +1,8 @@
 import os 
 import openai
-from typing import Dict, Tuple
-import re
+from openai import AsyncOpenAI
+import json
+from typing import Dict
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,8 +11,27 @@ class AIService:
     def __init__(self):
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         if self.openai_api_key:
-            openai.api_key = self.openai_api_key
+            # Instancia um cliente assíncrono para a API OpenAI
+            self.client = AsyncOpenAI(api_key=self.openai_api_key)
+        else:
+            self.client = None
 
+    async def classify_email(self, email_content: str) -> Dict[str, str]:
+        """
+        Classifica email e gera uma resposta sugerida
+        """
+        try:
+            # Verifica se o cliente foi inicializado
+            if self.client:
+                return await self._classify_with_openai(email_content)
+            else:
+                # Se não houver chave/cliente, usa o método de regras como fallback
+                print("Chave da OpenAI não encontrada. Usando fallback de regras.")
+                return self._classify_with_rules(email_content)
+        except Exception as e:
+            print(f"Erro na classificação do email: {e}")
+            return self._classify_with_rules(email_content)
+        
     async def classify_email(self, email_content: str) -> Dict[str, str]:
         """
         Classifica email e gera uma resposta sugerida
@@ -45,20 +65,20 @@ class AIService:
         """
 
         try:
-            response = await openai.ChatCompletion.acreate(
-                model="gpt-5",
+            response = await self.client.chat.completions.create(
+                model="gpt-4",
                 messages=[
                     {"role": "system", "content": "Você é um assistente especializado em classificação de emails corporativos."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=500,
-                temperature=0.3
+                temperature=0.3,
+                response_format={"type": "json_object"} # <-- Garante que a resposta seja JSON
             )
 
             result_text = response.choices[0].message.content
 
             # Parsing do resulado JSON
-            import json
             result = json.loads(result_text)
 
             return {
@@ -71,7 +91,7 @@ class AIService:
             print(f"Erro na API OpenAI: {e}")
             return self._classify_with_rules(email_content)
     
-    def __classify_with_rules(self, email_content: str) -> Dict[str, str]:
+    def _classify_with_rules(self, email_content: str) -> Dict[str, str]:
         """ Classificação baseada em regras (fallback) """
 
         email_lower = email_content.lower()
@@ -94,11 +114,11 @@ class AIService:
         unproductive_score = sum(1 for word in unproductive_keywords if word in email_lower)
 
         if productive_score > unproductive_score:
-            classification = "Produttivo"
+            classification = "Produtivo"
             suggested_response = "Obrigado pelo seu email. Recebemos sua mensagem e entraremmos contato em breve."
             confidence = "Alta" if productive_score >= 3 else "Média"
         else:
-            classification = "Improduttivo"
+            classification = "Improdutivo"
             suggested_response = "Obrigado pelo seu email. Agradecemos o contato."
             confidence = "Baixa"
 

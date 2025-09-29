@@ -17,4 +17,4 @@ class EmailClassification(Base):
     is_from_file = Column(Boolean, default=False)
 
     def __repr__(self):
-        return f"<EmailClassification(id={self.id}, classification='{self.classifcation}')>"
+        return f"<EmailClassification(id={self.id}, classification='{self.classification}')>"

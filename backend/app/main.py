@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -34,7 +34,7 @@ async def root():
 @app.post('/classify-email')
 async def classifiy_email(
     file: UploadFile = File(None),
-    text: str = None, 
+    text: str = Form(None), 
     db: Session = Depends(get_db)
 ):
     try: 

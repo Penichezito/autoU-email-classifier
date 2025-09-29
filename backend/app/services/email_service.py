@@ -10,7 +10,7 @@ class EmailService:
     def __init__(self):
         self.ai_service = AIService()
 
-    async def process_emmail(
+    async def process_email(
             self,
             content: str,
             db: Session,
@@ -26,7 +26,7 @@ class EmailService:
         email_record = EmailClassification(
             original_text=content,
             classification=ai_result["classification"],
-            suggested_respopnse=ai_result["confidence"],
+            suggested_response=ai_result["suggested_response"],
             file_name=file_name,
             is_from_file=is_from_file
         )
@@ -38,27 +38,27 @@ class EmailService:
         return {
             "id": email_record.id,
             "clasification": ai_result["classification"],
-            "suggested_response": ai_result["confidence"],
-            "precesssed_at": email_record.processed_at.isoformat()
+            "suggested_response": ai_result["suggested_response"],
+            "processsed_at": email_record.processed_at.isoformat()
         }
     
     def extract_text_from_file(self, file_content: bytes, filename: str) -> str:
         """ Extrai o texto de um arquivo PDF ou TXT """
-        file_extension = filename.lower().aplit('.')[-1]
+        file_extension = filename.lower().split('.')[-1]
 
         if file_extension == "pdf":
-            return self.extract_text_from_file_pdf(file_content)
+            return self.extract_from_pdf(file_content)
         elif file_extension == "txt":
             return file_content.decode("utf-8")
         elif file_extension in ["doc","docx"]:
-            return self.extract_text_from_file_docx(file_content)
+            return self.extract_from_docx(file_content)
         else:
             raise ValueError("Formato de arquivo não suportado: {file_extension}")
         
     def _extract_from_pdf(self, file_content: bytes) -> str:
         """ Extrai texto de um arquivo PDF """
         pdf_file = io.BytesIO(file_content)
-        reader = PyPDF2.Pdf.Reader(pdf_file)
+        reader = PyPDF2.PdfReader(pdf_file)
 
         text = ""
         for page in reader.pages:
@@ -68,7 +68,7 @@ class EmailService:
     
     def _extract_from_docx(self, file_content: bytes) -> str:
         """Extrai texto de um arquivo DOCX"""
-        doc_file = io.BytresIO(file_content)
+        doc_file = io.BytesIO(file_content)
         doc = docx.Document(doc_file)
 
         text = ""

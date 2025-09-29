@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, Send } from 'lucide-react';
+import { Upload, Send } from 'lucide-react';
 import { ClassificationResult } from '@/types/email';
 
 interface EmailUploaderProps {
@@ -52,7 +52,9 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
         formData.append('text', textInput);
       }
 
-      const response = await fetch('/api/classify-email', {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/classify-email`;
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
