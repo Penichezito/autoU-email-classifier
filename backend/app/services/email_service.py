@@ -22,12 +22,12 @@ class EmailService:
         # Classificação usando IA
         ai_result = await self.ai_service.classify_email(content)
 
-       # Salvar no banco de dados
+        # Salvar no banco de dados
         email_record = EmailClassification(
             original_text=content,
             classification=ai_result["classification"],
-            suggested_response=ai_result["suggested_response"], 
-            confidence_score=ai_result["confidence"], 
+            suggested_response=ai_result["suggested_response"],
+            confidence=ai_result.get("confidence"), # .get() para segurança
             file_name=file_name,
             is_from_file=is_from_file
         )
@@ -40,41 +40,50 @@ class EmailService:
             "id": email_record.id,
             "classification": ai_result["classification"],
             "suggested_response": ai_result["suggested_response"],
-            "confidence": ai_result["confidence"],
-            "processed_at": email_record.processed_at.isoformat() 
+            "confidence": ai_result.get("confidence"),
+            "processed_at": email_record.processed_at.isoformat()
         }
-    
+
     def extract_text_from_file(self, file_content: bytes, filename: str) -> str:
-        """ Extrai o texto de um arquivo PDF ou TXT """
+        """ Extrai o texto de um arquivo (PDF, DOCX, TXT) """
         file_extension = filename.lower().split('.')[-1]
 
         if file_extension == "pdf":
             return self._extract_from_pdf(file_content)
         elif file_extension == "txt":
-            return file_content.decode("utf-8")
-        elif file_extension in ["doc","docx"]:
+            # ## CORREÇÃO: Adicionado errors="ignore" para lidar com diferentes codificações de texto.
+            return file_content.decode("utf-8", errors="ignore")
+        elif file_extension in ["doc", "docx"]:
             return self._extract_from_docx(file_content)
         else:
-            raise ValueError("Formato de arquivo não suportado: {file_extension}")
-        
+            raise ValueError(f"Formato de arquivo não suportado: {file_extension}")
+
     def _extract_from_pdf(self, file_content: bytes) -> str:
         """ Extrai texto de um arquivo PDF """
-        pdf_file = io.BytesIO(file_content)
-        reader = PyPDF2.PdfReader(pdf_file)
-
         text = ""
-        for page in reader.pages:
-            text += page.extract_text()
-
+        try:
+            pdf_file = io.BytesIO(file_content)
+            reader = PyPDF2.PdfReader(pdf_file)
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text
+        except Exception as e:
+            print(f"Erro ao ler PDF: {e}")
+            # Tenta uma decodificação forçada como último recurso
+            return file_content.decode('latin-1', errors='ignore')
         return text
-    
+
     def _extract_from_docx(self, file_content: bytes) -> str:
         """Extrai texto de um arquivo DOCX"""
-        doc_file = io.BytesIO(file_content)
-        doc = docx.Document(doc_file)
-
         text = ""
-        for paragraph in doc.paragraphs:
-            text += paragraph.text + "\n"
-
+        try:
+            doc_file = io.BytesIO(file_content)
+            doc = docx.Document(doc_file)
+            for paragraph in doc.paragraphs:
+                text += paragraph.text + "\n"
+        except Exception as e:
+            print(f"Erro ao ler DOCX: {e}")
+            return ""
         return text
+

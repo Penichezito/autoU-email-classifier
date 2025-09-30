@@ -5,14 +5,10 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/:path*`,
+        destination: 'http://localhost:8000/:path*',
       }
     ];
   },
-  // Otimizações
-  reactStrictMode: true,
-  poweredByHeader: false,
-  compress: true,
 };
 
 export default nextConfig;
