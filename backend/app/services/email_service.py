@@ -22,11 +22,12 @@ class EmailService:
         # Classificação usando IA
         ai_result = await self.ai_service.classify_email(content)
 
-        # Salvar no banco de dados
+       # Salvar no banco de dados
         email_record = EmailClassification(
             original_text=content,
             classification=ai_result["classification"],
-            suggested_response=ai_result["suggested_response"],
+            suggested_response=ai_result["suggested_response"], 
+            confidence_score=ai_result["confidence"], 
             file_name=file_name,
             is_from_file=is_from_file
         )
@@ -37,9 +38,10 @@ class EmailService:
 
         return {
             "id": email_record.id,
-            "clasification": ai_result["classification"],
+            "classification": ai_result["classification"],
             "suggested_response": ai_result["suggested_response"],
-            "processsed_at": email_record.processed_at.isoformat()
+            "confidence": ai_result["confidence"],
+            "processed_at": email_record.processed_at.isoformat() 
         }
     
     def extract_text_from_file(self, file_content: bytes, filename: str) -> str:
@@ -47,11 +49,11 @@ class EmailService:
         file_extension = filename.lower().split('.')[-1]
 
         if file_extension == "pdf":
-            return self.extract_from_pdf(file_content)
+            return self._extract_from_pdf(file_content)
         elif file_extension == "txt":
             return file_content.decode("utf-8")
         elif file_extension in ["doc","docx"]:
-            return self.extract_from_docx(file_content)
+            return self._extract_from_docx(file_content)
         else:
             raise ValueError("Formato de arquivo não suportado: {file_extension}")
         

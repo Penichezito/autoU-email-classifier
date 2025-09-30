@@ -2,21 +2,39 @@
 
 import { ClassificationResult } from '@/types/email';
 import { CheckCircle, AlertCircle, Copy, Calendar } from 'lucide-react';
+import { useState } from 'react';
 
 interface ResultDisplayProps {
   result: ClassificationResult;
 }
 
 export default function ResultDisplay({ result }: ResultDisplayProps) {
+  const [copied, setCopied] = useState(false);
   const isProductive = result.classification === 'Produtivo';
   
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // You could add a toast notification here
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar:', err);
+      alert('Erro ao copiar para área de transferência');
+    }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('pt-BR');
+    try {
+      return new Date(dateString).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
   };
 
   return (
@@ -88,10 +106,15 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
               <h4 className="font-medium text-blue-800">Resposta Sugerida</h4>
               <button
                 onClick={() => copyToClipboard(result.suggested_response)}
-                className="p-1 hover:bg-blue-100 rounded transition-colors"
+                className="p-1 hover:bg-blue-100 rounded transition-colors relative"
                 title="Copiar resposta"
               >
                 <Copy className="h-4 w-4 text-blue-600" />
+                {copied && (
+                  <span className="absolute -top-8 -right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                    Copiado!
+                  </span>
+                )}
               </button>
             </div>
             

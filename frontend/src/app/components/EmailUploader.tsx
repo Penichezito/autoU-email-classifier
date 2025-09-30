@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Send } from 'lucide-react';
+import { Upload, Send, Trash2 } from 'lucide-react';
 import { ClassificationResult } from '@/types/email';
 
 interface EmailUploaderProps {
@@ -52,7 +52,8 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
         formData.append('text', textInput);
       }
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/classify-email`;
+      // Usar /api prefix que é reescrito pelo Next.js
+      const apiUrl = '/api/classify-email';
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -60,7 +61,8 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
       });
 
       if (!response.ok) {
-        throw new Error('Erro na classificação');
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || 'Erro na classificação');
       }
 
       const result: ClassificationResult = await response.json();
@@ -68,7 +70,7 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
 
     } catch (error) {
       console.error('Erro:', error);
-      alert('Erro ao processar email. Tente novamente.');
+      alert(`Erro ao processar email: ${error instanceof Error ? error.message : 'Tente novamente.'}`);
     } finally {
       setLoading(false);
     }
@@ -108,6 +110,9 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
           <div className="text-sm">
             <p className="font-medium text-gray-700">Arquivo selecionado:</p>
             <p className="text-gray-500">{selectedFile.name}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {(selectedFile.size / 1024).toFixed(2)} KB
+            </p>
           </div>
         ) : (
           <div className="text-sm text-gray-600">
@@ -135,6 +140,9 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
           className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           placeholder="Cole aqui o conteúdo do email..."
         />
+        <p className="text-xs text-gray-500 mt-1">
+          {textInput.length} / 10000 caracteres
+        </p>
       </div>
 
       {/* Action Buttons */}
@@ -159,8 +167,10 @@ export default function EmailUploader({ onResult, loading, setLoading }: EmailUp
         
         <button
           onClick={clearAll}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          disabled={loading}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
+          <Trash2 className="h-4 w-4" />
           Limpar
         </button>
       </div>

@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 from app.controllers.email_controller import EmailController
-from app.database.connection import get_db
+from app.database.connection import create_tables, get_db
 from sqlalchemy.orm import Session
 
 load_dotenv()
@@ -25,11 +25,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# # Criar tabelas ao iniciar
+# @app.on_event("startup")
+# async def startup_event():
+#     create_tables()
+#     print("✅ Tabelas do banco de dados criadas/verificadas")
+
+
 email_controller = EmailController()
 
 @app.get("/")
 async def root():
-    return {"message": "AutoU Email Classifier API", "status": "active"}
+    return {
+        "message": "AutoU Email Classifier API", 
+        "status": "active",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
 
 @app.post('/classify-email')
 async def classifiy_email(

@@ -15,29 +15,13 @@ class AIService:
             self.client = AsyncOpenAI(api_key=self.openai_api_key)
         else:
             self.client = None
-
-    async def classify_email(self, email_content: str) -> Dict[str, str]:
-        """
-        Classifica email e gera uma resposta sugerida
-        """
-        try:
-            # Verifica se o cliente foi inicializado
-            if self.client:
-                return await self._classify_with_openai(email_content)
-            else:
-                # Se não houver chave/cliente, usa o método de regras como fallback
-                print("Chave da OpenAI não encontrada. Usando fallback de regras.")
-                return self._classify_with_rules(email_content)
-        except Exception as e:
-            print(f"Erro na classificação do email: {e}")
-            return self._classify_with_rules(email_content)
         
     async def classify_email(self, email_content: str) -> Dict[str, str]:
         """
         Classifica email e gera uma resposta sugerida
         """
         try:
-            if self.openapi_api_key:
+            if self.openai_api_key:
                 return await self._classify_with_openai(email_content)
             else:
                 return self._classify_with_rules(email_content)
@@ -66,7 +50,7 @@ class AIService:
 
         try:
             response = await self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "Você é um assistente especializado em classificação de emails corporativos."},
                     {"role": "user", "content": prompt}
